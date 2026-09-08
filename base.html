@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}OneCloud{% endblock %}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #10131a; color: #e8eaf0; margin: 0; }
+    header { background: #1b1f2a; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header a { color: #7dd3fc; text-decoration: none; font-weight: 600; }
+    main { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .card { background: #1b1f2a; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    input, select, button { padding: 0.5rem; border-radius: 6px; border: 1px solid #333a4a; background: #10131a; color: #e8eaf0; }
+    button { background: #7dd3fc; color: #10131a; font-weight: 600; cursor: pointer; border: none; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #333a4a; }
+    .flash { background: #3a2d1b; border: 1px solid #d9a441; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; }
+    .state-running { color: #4ade80; }
+    .state-other { color: #d9a441; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="{{ url_for('dashboard') }}">☁️ OneCloud</a>
+    {% if session.get('username') %}
+      <span>{{ session['username'] }} &nbsp; <a href="{{ url_for('logout') }}">Logout</a></span>
+    {% endif %}
+  </header>
+  <main>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

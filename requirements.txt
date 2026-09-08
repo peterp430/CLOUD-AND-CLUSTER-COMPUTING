@@ -1,0 +1,3 @@
+Flask==3.0.3
+pyone==7.3.80
+gunicorn==22.0.0

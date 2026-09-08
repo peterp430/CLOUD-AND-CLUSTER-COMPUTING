@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>Create a Virtual Machine</h2>
+  <form method="post" action="{{ url_for('create_vm') }}">
+    <p>
+      <input name="vm_name" placeholder="VM name" required>
+      <select name="template_id" required>
+        {% for t in templates %}
+          <option value="{{ t.ID }}">{{ t.NAME }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Deploy VM</button>
+    </p>
+  </form>
+</div>
+
+<div class="card">
+  <h2>My Virtual Machines</h2>
+  <table>
+    <tr><th>ID</th><th>Name</th><th>State</th><th>Host</th></tr>
+    {% for vm in vms %}
+    <tr>
+      <td>{{ vm.ID }}</td>
+      <td>{{ vm.NAME }}</td>
+      <td class="{{ 'state-running' if vm.STATE == 3 else 'state-other' }}">{{ vm.LCM_STATE }}</td>
+      <td>{{ vm.HISTORY_RECORDS.HISTORY[-1].HOSTNAME if vm.HISTORY_RECORDS.HISTORY else '-' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No VMs yet — create one above.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="card">
+  <h2>Cluster Members</h2>
+  <table>
+    <tr><th>ID</th><th>Username</th></tr>
+    {% for u in users %}
+    <tr><td>{{ u.ID }}</td><td>{{ u.NAME }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock %}
