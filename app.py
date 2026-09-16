@@ -16,7 +16,9 @@ ONE_XMLRPC = os.environ.get("ONE_XMLRPC", "http://localhost:2633/RPC2")
 # ONE_ADMIN_AUTH: "oneadmin:<password>" — used only server-side, for the
 # actions that must run as admin (creating new user accounts). Never send
 # this to the browser.
-ONE_ADMIN_AUTH = os.environ.get("ONE_ADMIN_AUTH", "oneadmin:changeme")
+# Without a real admin credential, registration cannot create users in OpenNebula.
+ONE_ADMIN_AUTH = os.environ.get("ONE_ADMIN_AUTH")
+ALLOW_PUBLIC_REGISTRATION = os.environ.get("ALLOW_PUBLIC_REGISTRATION", "true").strip().lower() not in {"0", "false", "no"}
 
 
 def get_admin_client():
@@ -54,6 +56,18 @@ def login():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    if not ALLOW_PUBLIC_REGISTRATION:
+        flash("Public account registration is currently disabled.")
+        return redirect(url_for("login"))
+
+    if not ONE_XMLRPC:
+        flash("Registration is unavailable because ONE_XMLRPC is not configured.")
+        return redirect(url_for("login"))
+
+    if not ONE_ADMIN_AUTH:
+        flash("Registration is unavailable because ONE_ADMIN_AUTH is not set. Set it to 'oneadmin:<password>'.")
+        return redirect(url_for("login"))
+
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -64,7 +78,10 @@ def register():
             flash("Account created — you can log in now.")
             return redirect(url_for("login"))
         except Exception as e:
-            flash(f"Registration failed: {e}")
+            flash(
+                "Registration failed: OpenNebula rejected the configured admin credentials or RPC endpoint. "
+                f"Check ONE_ADMIN_AUTH and ONE_XMLRPC. Details: {e}"
+            )
     return render_template("register.html")
 
 
